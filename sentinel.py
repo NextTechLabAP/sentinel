@@ -1,200 +1,296 @@
 import os
+import asyncio
+import sys
+import logging
+from typing import List, Dict, Any, Optional
+
 from github import Github
 import base64
-from sentence_transformers import SentenceTransformer
+import requests
 import faiss
 import numpy as np
-import groq
-from langchain_groq import ChatGroq
-from langchain.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
+
+from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2", "true")
-os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
-os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
+from langchain_groq import ChatGroq
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 
-# Initialize GitHub client
-g = Github(os.getenv("GITHUB_TOKEN"))
-
-# Initialize Groq client with LangChain
-llm = ChatGroq(
-    model="mixtral-8x7b-32768",
-    groq_api_key=os.getenv("GROQ_API_KEY"),
-    temperature=0.5
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
-parser = StrOutputParser()
-embedder = SentenceTransformer('all-MiniLM-L6-v2')
+logger = logging.getLogger(__name__)
 
-# Initialize FAISS index and file tracking
-dimension = 384
-index = faiss.IndexFlatL2(dimension)
-file_paths = []
-repo_files = {}
+class AdvancedLLMPipeline:
+    def __init__(self, api_key=None):
+        """
+        Initialize the advanced LLM pipeline with multiple models and configurations
+        """
+        load_dotenv()
+        self.api_key = api_key or os.getenv("GROQ_API_KEY")
+        
+        # Define specialized models for different tasks
+        self.models = {
+            "code_review": ChatGroq(
+                model="deepseek-r1-distill-llama-70b",
+                temperature=0.5,
+                groq_api_key=self.api_key
+            ),
+            "summarization": ChatGroq(
+                model="gemma2-9b-it",
+                temperature=0.3,
+                groq_api_key=self.api_key
+            ),
+            "detail_extraction": ChatGroq(
+                model="deepseek-r1-distill-llama-70b",
+                temperature=0.2,
+                groq_api_key=self.api_key
+            )
+        }
+        
+        # Define prompt templates for different stages
+        self.prompt_templates = {
+            "initial_analysis": PromptTemplate(
+                input_variables=["content"],
+                template="""Perform an initial high-level analysis of the following code:
+                Code: {content}
+                
+                Provide a concise overview focusing on:
+                1. Overall code structure
+                2. Potential architectural patterns
+                3. Initial observations
+                """
+            ),
+            "detailed_review": PromptTemplate(
+                input_variables=["initial_analysis"],
+                template="""Based on the initial analysis:
+                {initial_analysis}
+                
+                Conduct an in-depth review with specific focus on:
+                1. Detailed code quality assessment
+                2. Potential optimization opportunities
+                3. Security and performance considerations
+                """
+            )
+        }
 
-system_prompt = """
-You are an expert software engineer and code reviewer. Your objective is to provide focused, constructive feedback on code, emphasizing best practices, readability, efficiency, and security. Prioritize concise, actionable suggestions.
-
-- Structure: Evaluate code organization, logic flow, and modularity.
-- Readability: Assess naming conventions, inline comments, and clarity.
-- Optimization: Identify areas for performance improvement, reducing unnecessary computations or memory usage.
-- Robustness: Verify error handling and edge-case coverage.
-- Security: Flag vulnerabilities, such as unsafe data handling or injection risks.
-- Best Practices: Ensure adherence to language or framework-specific guidelines.
-
-When suggesting changes, list each on a new line for readability, formatted as: Suggestion 1 /n Suggestion 2 /n Suggestion 3. Avoid generic feedback; be as specific as possible and use examples where helpful.
-
-Summary: Provide a brief overview of strengths and areas for improvement.
-"""
-
-prompt_template = PromptTemplate(
-    input_variables=["system_prompt", "context", "query"],
-    template="{system_prompt}\n\nHere are some relevant files: {context}\n\nUser's question: {query}\nAnswer:",
-)
-
-def fetch_github_repo_files(repo_name):
-    repo = g.get_repo(repo_name)
-    contents = repo.get_contents("")
-    files = {}
-
-    while contents:
-        file_content = contents.pop(0)
-        if file_content.type == "dir":
-            contents.extend(repo.get_contents(file_content.path))
+    async def route_task(self, input_content: str) -> str:
+        """
+        Dynamic task routing based on input characteristics
+        """
+        if 'import' in input_content or 'def ' in input_content or 'class ' in input_content:
+            return 'code_review'
+        elif len(input_content) > 500:
+            return 'summarization'
         else:
-            try:
-                file_data = base64.b64decode(file_content.content).decode("utf-8")
-                files[file_content.path] = file_data
-            except (UnicodeDecodeError, base64.binascii.Error):
-                print(f"Skipping binary file: {file_content.path}")
-                continue
-    return files
+            return 'detail_extraction'
 
-def update_rag_index(repo_name):
-    global index, file_paths, repo_files
-    index.reset()
-    file_paths.clear()
-    repo_files = fetch_github_repo_files(repo_name)
+    async def parallel_process(self, tasks: List[Dict[str, Any]]) -> List[str]:
+        """
+        Parallelize independent subtasks across multiple LLMs
+        """
+        async def process_task(task):
+            model_name = await self.route_task(task['content'])
+            model = self.models[model_name]
+            
+            # Prompt-chaining: Multi-stage processing
+            stage1_prompt = self.prompt_templates['initial_analysis']
+            stage2_prompt = self.prompt_templates['detailed_review']
+            
+            # Initial analysis
+            initial_analysis = model.invoke(
+                stage1_prompt.format(content=task['content'])
+            ).content
+            
+            # Detailed review based on initial analysis
+            detailed_review = model.invoke(
+                stage2_prompt.format(initial_analysis=initial_analysis)
+            ).content
+            
+            return detailed_review
 
-    for path, content in repo_files.items():
-        embedding = embed_text_with_transformers(content)
-        index.add(np.array([embedding], dtype=np.float32))
-        file_paths.append(path)
+        # Use asyncio to process tasks concurrently
+        return await asyncio.gather(*[process_task(task) for task in tasks])
 
-    print(f"Indexed to new RAG {len(file_paths)} files from {repo_name}.")
-
-def embed_text_with_transformers(text):
-    return embedder.encode(text)
-
-def search_faiss(query, top_k=3):
-    query_embedding = embed_text_with_transformers(query)
-    query_embedding = np.array([query_embedding], dtype=np.float32)
-    distances, indices = index.search(query_embedding, top_k)
-    relevant_files = [file_paths[i] for i in indices[0] if i < len(file_paths)]
-    return relevant_files
-
-def fetch_file_content(file_paths, repo_files):
-    return "\n\n".join([repo_files[file] for file in file_paths if file in repo_files])
-
-def generate_response(query, context):
-    prompt = prompt_template.format(system_prompt=system_prompt, context=context, query=query)
-    chain = llm | parser
-    response = chain.invoke(prompt)
-    return response
-
-def process_github_repo(repo_name, user_query):
-    # Ensure the index is up to date
-    update_rag_index(repo_name)
-
-    # Retrieve relevant files and their content
-    relevant_files = search_faiss(user_query, top_k=3)
-    relevant_files_content = fetch_file_content(relevant_files, repo_files)
-
-    # Generate response from the model
-    response = generate_response(user_query, relevant_files_content)
-
-    return {
-        "query": user_query,
-        "repo": repo_name,
-        "relevant_files": relevant_files,
-        "response": response
-    }
-
-def process_pull_request(repo_name, pr_number):
-    # Update the RAG index with the repository content
-    update_rag_index(repo_name)
-
-    # Get the pull request object
-    repo = g.get_repo(repo_name)
-    pull_request = repo.get_pull(pr_number)
-
-    comments = []
-    for file in pull_request.get_files():
-        file_path = file.filename
-        if file_path in repo_files:
-            relevant_files_content = repo_files[file_path]
-            review_comment = generate_response(f"Review the file: {file_path}", relevant_files_content)
-            comments.append(f"**{file_path}**\n{review_comment}")
-
-    review_body = "\n\n".join(comments)
-
-    try:
-        pull_request.create_review(
-            body=review_body if review_body else "Automated code review feedback",
-            event="COMMENT"
+    def process_github_files(self, files: Dict[str, str]) -> Dict[str, str]:
+        """
+        Process multiple GitHub files with advanced LLM pipeline
+        """
+        # Convert files to task format
+        tasks = [
+            {'path': path, 'content': content} 
+            for path, content in files.items()
+        ]
+        
+        # Run async processing
+        results = asyncio.run(
+            self.parallel_process(tasks)
         )
-        return {"status": "Review comments added", "review": review_body}
+        
+        # Map results back to file paths
+        return {
+            task['path']: result 
+            for task, result in zip(tasks, results)
+        }
+
+class GitHubCodeReviewSentinel:
+    def __init__(self):
+        # Load environment variables
+        load_dotenv()
+        
+        # Validate environment variables
+        self._validate_environment()
+        
+        # Initialize GitHub client
+        self.github_client = Github(os.getenv("GITHUB_TOKEN"))
+        
+        # Initialize embedding and indexing
+        self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
+        self.dimension = 384
+        self.index = faiss.IndexFlatL2(self.dimension)
+        self.file_paths = []
+        self.repo_files = {}
+        
+        # Initialize LLM Pipeline
+        self.llm_pipeline = AdvancedLLMPipeline()
+
+    def _validate_environment(self):
+        """Validate that all required environment variables are set."""
+        required_vars = [
+            "GITHUB_TOKEN", 
+            "GROQ_API_KEY", 
+            "LANGCHAIN_API_KEY"
+        ]
+        missing_vars = [var for var in required_vars if not os.getenv(var)]
+        
+        if missing_vars:
+            raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+
+    def fetch_github_repo_files(self, repo_name):
+        """Fetch all files from a GitHub repository"""
+        repo = self.github_client.get_repo(repo_name)
+        contents = repo.get_contents("")
+        files = {}
+
+        while contents:
+            file_content = contents.pop(0)
+            if file_content.type == "dir":
+                contents.extend(repo.get_contents(file_content.path))
+            else:
+                try:
+                    file_data = base64.b64decode(file_content.content).decode("utf-8")
+                    files[file_content.path] = file_data
+                except (UnicodeDecodeError, base64.binascii.Error):
+                    print(f"Skipping binary file: {file_content.path}")
+                    continue
+        return files
+
+    def update_rag_index(self, repo_name):
+        """Update RAG index for the repository"""
+        self.index.reset()
+        self.file_paths.clear()
+        self.repo_files = self.fetch_github_repo_files(repo_name)
+
+        for path, content in self.repo_files.items():
+            embedding = self.embed_text_with_transformers(content)
+            self.index.add(np.array([embedding], dtype=np.float32))
+            self.file_paths.append(path)
+
+        logger.info(f"Indexed {len(self.file_paths)} files from {repo_name}")
+
+    def embed_text_with_transformers(self, text):
+        """Embed text using Sentence Transformers"""
+        return self.embedder.encode(text)
+
+    def search_faiss(self, query, top_k=3):
+        """Search FAISS index for relevant files"""
+        query_embedding = self.embed_text_with_transformers(query)
+        query_embedding = np.array([query_embedding], dtype=np.float32)
+        distances, indices = self.index.search(query_embedding, top_k)
+        relevant_files = [self.file_paths[i] for i in indices[0] if i < len(self.file_paths)]
+        return relevant_files
+
+    def get_open_pr_numbers(self, owner, repo):
+        """Fetch open pull request numbers"""
+        url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
+        headers = {
+            "Authorization": f"token {os.getenv('GITHUB_TOKEN')}"
+        }
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            pr_list = response.json()
+            return [pr['number'] for pr in pr_list]
+        else:
+            logger.error(f"Error fetching PRs: {response.status_code}, {response.json()}")
+            return []
+
+    def process_pull_request(self, repo_name, pr_number):
+        """Process a pull request with advanced review"""
+        # Update the RAG index with the repository content
+        self.update_rag_index(repo_name)
+
+        # Get the pull request object
+        repo = self.github_client.get_repo(repo_name)
+        pull_request = repo.get_pull(pr_number)
+
+        # Process files with advanced pipeline
+        file_reviews = self.llm_pipeline.process_github_files(self.repo_files)
+        
+        # Generate comprehensive review
+        comprehensive_review = "\n\n".join([
+            f"**{path}**\n{review}" 
+            for path, review in file_reviews.items()
+        ])
+
+        try:
+            pull_request.create_review(
+                body=comprehensive_review if comprehensive_review else "Automated code review feedback",
+                event="COMMENT"
+            )
+            return {
+                "status": "Comprehensive Review Generated", 
+                "review": comprehensive_review
+            }
+        except Exception as e:
+            logger.error(f"Error creating review: {e}")
+            return {
+                "status": "Error creating review", 
+                "error": str(e)
+            }
+
+def main():
+    """Main execution function"""
+    try:
+        # Initialize the sentinel
+        sentinel = GitHubCodeReviewSentinel()
+        
+        # Default repository
+        repo_name = 'Spirizeon/claxvim'
+        
+        # Get open PRs
+        open_prs = sentinel.get_open_pr_numbers("spirizeon", "claxvim")
+        logger.info(f"Open PRs: {open_prs}")
+        
+        if not open_prs:
+            logger.info("No open PRs to review!")
+            return
+        
+        # Process each open PR
+        for pr_number in open_prs:
+            pr_result = sentinel.process_pull_request(repo_name, pr_number)
+            logger.info(f"PR {pr_number} Review Status: {pr_result['status']}")
+            
+            if 'review' in pr_result:
+                logger.info(f"Review Details: {pr_result['review']}")
+    
     except Exception as e:
-        print(f"Error creating review: {e}")
-        return {"status": "Error creating review", "error": str(e)}
+        logger.error(f"Unexpected error in main execution: {e}")
+        sys.exit(1)
 
-import requests
-
-def get_open_pr_numbers(owner, repo):
-    """
-    Fetches open pull requests from a GitHub repository and returns a list of PR numbers.
-
-    :param owner: Repository owner (e.g., 'Spirizeon')
-    :param repo: Repository name (e.g., 'claxvim')
-    :param token: (Optional) GitHub personal access token for authentication
-    :return: List of open PR numbers
-    """
-    url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
-    headers = {}
-
-    headers["Authorization"] = f"token {os.getenv('GITHUB_TOKEN')}"
-
-    response = requests.get(url, headers=headers)
-
-    if response.status_code == 200:
-        pr_list = response.json()
-        return [pr['number'] for pr in pr_list]
-    else:
-        print(f"Error: {response.status_code}, {response.json()}")
-        return []
-
-
-
-
-# Example usage:
 if __name__ == '__main__':
-    # Example 1: Process a repository with a query
-    """
-    repo_name = 'Spirizeon/claxvim'  # Default repository
-    user_query = "What improvements can be made to error handling?"
-    result = process_github_repo(repo_name, user_query)
-    print(f"Query: {result['query']}")
-    print(f"Relevant files: {result['relevant_files']}")
-    print(f"Response: {result['response']}")
-    """
-    open_prs = get_open_pr_numbers("spirizeon","claxvim")
-    print(f"Open PRs: {open_prs}")
-    if open_prs ==  []:
-        print(f"Nothing to review!")
-    for i in open_prs:
-        pr_result = process_pull_request('Spirizeon/claxvim', i)
-        print(f"PR Review Status: {pr_result['status']}")
-        if 'review' in pr_result:
-            print(f"Review: {pr_result['review']}")
+    main()
