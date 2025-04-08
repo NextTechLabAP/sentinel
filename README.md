@@ -50,7 +50,7 @@ spirizeon-sentinel/
 
 ### **Main Components:**
 
-- **sentinel.py**: Core Python script responsible for fetching GitHub repositories, embedding files using Sentence Transformers, indexing embeddings with FAISS, and generating AI-driven code reviews using LangChain and Groq.
+- **sentinel.py**: Core Python script responsible for fetching GitHub repositories, embedding files using Sentence Transformers, indexing embeddings with FAISS, and generating AI-driven code reviews using LangChain and Groq
 
 ### **Key Functionalities:**
 
