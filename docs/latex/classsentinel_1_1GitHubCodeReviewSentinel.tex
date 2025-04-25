@@ -1,0 +1,140 @@
+\hypertarget{classsentinel_1_1GitHubCodeReviewSentinel}{}\doxysection{sentinel.\+Git\+Hub\+Code\+Review\+Sentinel Class Reference}
+\label{classsentinel_1_1GitHubCodeReviewSentinel}\index{sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classsentinel_1_1GitHubCodeReviewSentinel_a5d9e18f3413aaf699429f04b912a7100}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self)
+\item 
+def \mbox{\hyperlink{classsentinel_1_1GitHubCodeReviewSentinel_a78166a0d88c752b153c46839f9eda873}{fetch\+\_\+github\+\_\+repo\+\_\+files}} (self, repo\+\_\+name)
+\item 
+def \mbox{\hyperlink{classsentinel_1_1GitHubCodeReviewSentinel_a23e9b9097a5108a5c6908666b531d7a3}{update\+\_\+rag\+\_\+index}} (self, repo\+\_\+name)
+\item 
+def \mbox{\hyperlink{classsentinel_1_1GitHubCodeReviewSentinel_af886a22ec5db3e3d9e2b92e8d48bfc64}{embed\+\_\+text\+\_\+with\+\_\+transformers}} (self, text)
+\item 
+def \mbox{\hyperlink{classsentinel_1_1GitHubCodeReviewSentinel_ac421a3a2002b14f7ced2ec225793aa67}{search\+\_\+faiss}} (self, query, top\+\_\+k=3)
+\item 
+def \mbox{\hyperlink{classsentinel_1_1GitHubCodeReviewSentinel_aae6d4dee639d4ed3b8d95584b24836ff}{get\+\_\+open\+\_\+pr\+\_\+numbers}} (self, owner, repo)
+\item 
+def \mbox{\hyperlink{classsentinel_1_1GitHubCodeReviewSentinel_a885c0c4bb807ea66d218adf4e45d71d8}{process\+\_\+pull\+\_\+request}} (self, repo\+\_\+name, pr\+\_\+number)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_a97e172461dc2d8c41113e5d8926de789}\label{classsentinel_1_1GitHubCodeReviewSentinel_a97e172461dc2d8c41113e5d8926de789}} 
+{\bfseries github\+\_\+client}
+\item 
+\mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_aa0fa5fb73f615a7aace7f5026de0ef2d}\label{classsentinel_1_1GitHubCodeReviewSentinel_aa0fa5fb73f615a7aace7f5026de0ef2d}} 
+{\bfseries embedder}
+\item 
+\mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_a2ea7565a7addac030f0252147db3bd72}\label{classsentinel_1_1GitHubCodeReviewSentinel_a2ea7565a7addac030f0252147db3bd72}} 
+{\bfseries dimension}
+\item 
+\mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_a250b407de3910a4e8e9a7304dccd7acb}\label{classsentinel_1_1GitHubCodeReviewSentinel_a250b407de3910a4e8e9a7304dccd7acb}} 
+{\bfseries index}
+\item 
+\mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_a4b6fae87d5c45c2581830d43586b6c3f}\label{classsentinel_1_1GitHubCodeReviewSentinel_a4b6fae87d5c45c2581830d43586b6c3f}} 
+{\bfseries file\+\_\+paths}
+\item 
+\mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_ac14341875d8f47e118d9d207589caa76}\label{classsentinel_1_1GitHubCodeReviewSentinel_ac14341875d8f47e118d9d207589caa76}} 
+{\bfseries repo\+\_\+files}
+\item 
+\mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_a923866f803acdad916398908dd733948}\label{classsentinel_1_1GitHubCodeReviewSentinel_a923866f803acdad916398908dd733948}} 
+{\bfseries llm\+\_\+pipeline}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}@brief Main class for GitHub repository analysis and code review
+
+This class handles GitHub repository interaction, semantic search, and code review
+generation using the AdvancedLLMPipeline.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_a5d9e18f3413aaf699429f04b912a7100}\label{classsentinel_1_1GitHubCodeReviewSentinel_a5d9e18f3413aaf699429f04b912a7100}} 
+\index{sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def sentinel.\+Git\+Hub\+Code\+Review\+Sentinel.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Initialize the GitHub Code Review Sentinel
+
+Sets up GitHub client, embedding model, and FAISS index for semantic search.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_af886a22ec5db3e3d9e2b92e8d48bfc64}\label{classsentinel_1_1GitHubCodeReviewSentinel_af886a22ec5db3e3d9e2b92e8d48bfc64}} 
+\index{sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}!embed\_text\_with\_transformers@{embed\_text\_with\_transformers}}
+\index{embed\_text\_with\_transformers@{embed\_text\_with\_transformers}!sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}}
+\doxysubsubsection{\texorpdfstring{embed\_text\_with\_transformers()}{embed\_text\_with\_transformers()}}
+{\footnotesize\ttfamily def sentinel.\+Git\+Hub\+Code\+Review\+Sentinel.\+embed\+\_\+text\+\_\+with\+\_\+transformers (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{text }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Generate embeddings for text using Sentence Transformers
+
+@param text The text to embed
+@return np.ndarray The embedding vector
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_a78166a0d88c752b153c46839f9eda873}\label{classsentinel_1_1GitHubCodeReviewSentinel_a78166a0d88c752b153c46839f9eda873}} 
+\index{sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}!fetch\_github\_repo\_files@{fetch\_github\_repo\_files}}
+\index{fetch\_github\_repo\_files@{fetch\_github\_repo\_files}!sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}}
+\doxysubsubsection{\texorpdfstring{fetch\_github\_repo\_files()}{fetch\_github\_repo\_files()}}
+{\footnotesize\ttfamily def sentinel.\+Git\+Hub\+Code\+Review\+Sentinel.\+fetch\+\_\+github\+\_\+repo\+\_\+files (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{repo\+\_\+name }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Fetch all files from a GitHub repository
+
+@param repo_name The name of the repository in 'owner/repo' format
+@return Dict[str, str] Dictionary mapping file paths to their contents
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_aae6d4dee639d4ed3b8d95584b24836ff}\label{classsentinel_1_1GitHubCodeReviewSentinel_aae6d4dee639d4ed3b8d95584b24836ff}} 
+\index{sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}!get\_open\_pr\_numbers@{get\_open\_pr\_numbers}}
+\index{get\_open\_pr\_numbers@{get\_open\_pr\_numbers}!sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}}
+\doxysubsubsection{\texorpdfstring{get\_open\_pr\_numbers()}{get\_open\_pr\_numbers()}}
+{\footnotesize\ttfamily def sentinel.\+Git\+Hub\+Code\+Review\+Sentinel.\+get\+\_\+open\+\_\+pr\+\_\+numbers (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{owner,  }\item[{}]{repo }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Fetch open pull request numbers from a repository
+
+@param owner Repository owner
+@param repo Repository name
+@return List[int] List of open pull request numbers
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_a885c0c4bb807ea66d218adf4e45d71d8}\label{classsentinel_1_1GitHubCodeReviewSentinel_a885c0c4bb807ea66d218adf4e45d71d8}} 
+\index{sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}!process\_pull\_request@{process\_pull\_request}}
+\index{process\_pull\_request@{process\_pull\_request}!sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}}
+\doxysubsubsection{\texorpdfstring{process\_pull\_request()}{process\_pull\_request()}}
+{\footnotesize\ttfamily def sentinel.\+Git\+Hub\+Code\+Review\+Sentinel.\+process\+\_\+pull\+\_\+request (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{repo\+\_\+name,  }\item[{}]{pr\+\_\+number }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Process a pull request with advanced review
+
+@param repo_name The name of the repository in 'owner/repo' format
+@param pr_number The pull request number
+@return Dict[str, Any] Dictionary containing review results
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_ac421a3a2002b14f7ced2ec225793aa67}\label{classsentinel_1_1GitHubCodeReviewSentinel_ac421a3a2002b14f7ced2ec225793aa67}} 
+\index{sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}!search\_faiss@{search\_faiss}}
+\index{search\_faiss@{search\_faiss}!sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}}
+\doxysubsubsection{\texorpdfstring{search\_faiss()}{search\_faiss()}}
+{\footnotesize\ttfamily def sentinel.\+Git\+Hub\+Code\+Review\+Sentinel.\+search\+\_\+faiss (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{query,  }\item[{}]{top\+\_\+k = {\ttfamily 3} }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Search the FAISS index for relevant files
+
+@param query The search query
+@param top_k Number of top results to return
+@return List[str] List of relevant file paths
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classsentinel_1_1GitHubCodeReviewSentinel_a23e9b9097a5108a5c6908666b531d7a3}\label{classsentinel_1_1GitHubCodeReviewSentinel_a23e9b9097a5108a5c6908666b531d7a3}} 
+\index{sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}!update\_rag\_index@{update\_rag\_index}}
+\index{update\_rag\_index@{update\_rag\_index}!sentinel.GitHubCodeReviewSentinel@{sentinel.GitHubCodeReviewSentinel}}
+\doxysubsubsection{\texorpdfstring{update\_rag\_index()}{update\_rag\_index()}}
+{\footnotesize\ttfamily def sentinel.\+Git\+Hub\+Code\+Review\+Sentinel.\+update\+\_\+rag\+\_\+index (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{repo\+\_\+name }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Update the RAG index with repository content
+
+@param repo_name The name of the repository in 'owner/repo' format
+\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sentinel.\+py\end{DoxyCompactItemize}

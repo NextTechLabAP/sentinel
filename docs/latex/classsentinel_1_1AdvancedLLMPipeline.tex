@@ -1,0 +1,87 @@
+\hypertarget{classsentinel_1_1AdvancedLLMPipeline}{}\doxysection{sentinel.\+Advanced\+LLMPipeline Class Reference}
+\label{classsentinel_1_1AdvancedLLMPipeline}\index{sentinel.AdvancedLLMPipeline@{sentinel.AdvancedLLMPipeline}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{classsentinel_1_1AdvancedLLMPipeline_ad6ed7e808e9ddb56959fd74ae511c555}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, api\+\_\+key=None)
+\item 
+str \mbox{\hyperlink{classsentinel_1_1AdvancedLLMPipeline_aa3c17fdac7f5bc4fc3d6a9d22a45be99}{route\+\_\+task}} (self, str input\+\_\+content)
+\item 
+List\mbox{[}str\mbox{]} \mbox{\hyperlink{classsentinel_1_1AdvancedLLMPipeline_ac4d5c9d1a34ce66b39477d746ecfcef9}{parallel\+\_\+process}} (self, List\mbox{[}Dict\mbox{[}str, Any\mbox{]}\mbox{]} tasks)
+\item 
+Dict\mbox{[}str, str\mbox{]} \mbox{\hyperlink{classsentinel_1_1AdvancedLLMPipeline_aa70fd702d4e4f746557a0aee99a1f1e7}{process\+\_\+github\+\_\+files}} (self, Dict\mbox{[}str, str\mbox{]} files)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classsentinel_1_1AdvancedLLMPipeline_ab694ed3c50496bf34ade00f10b6f1899}\label{classsentinel_1_1AdvancedLLMPipeline_ab694ed3c50496bf34ade00f10b6f1899}} 
+{\bfseries api\+\_\+key}
+\item 
+\mbox{\Hypertarget{classsentinel_1_1AdvancedLLMPipeline_a0997e6a061fb4eed4e9078911e3bb091}\label{classsentinel_1_1AdvancedLLMPipeline_a0997e6a061fb4eed4e9078911e3bb091}} 
+{\bfseries models}
+\item 
+\mbox{\Hypertarget{classsentinel_1_1AdvancedLLMPipeline_a6b9d508459600f5c86cef4da90b1f637}\label{classsentinel_1_1AdvancedLLMPipeline_a6b9d508459600f5c86cef4da90b1f637}} 
+{\bfseries prompt\+\_\+templates}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}@brief Advanced Language Model Pipeline for processing code and generating reviews
+
+This class manages multiple LLM models and handles the processing of code content
+through various stages of analysis and review.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classsentinel_1_1AdvancedLLMPipeline_ad6ed7e808e9ddb56959fd74ae511c555}\label{classsentinel_1_1AdvancedLLMPipeline_ad6ed7e808e9ddb56959fd74ae511c555}} 
+\index{sentinel.AdvancedLLMPipeline@{sentinel.AdvancedLLMPipeline}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!sentinel.AdvancedLLMPipeline@{sentinel.AdvancedLLMPipeline}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily def sentinel.\+Advanced\+LLMPipeline.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{}]{api\+\_\+key = {\ttfamily None} }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Initialize the advanced LLM pipeline with multiple models and configurations
+
+@param api_key Optional API key for Groq. If not provided, will be loaded from environment.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classsentinel_1_1AdvancedLLMPipeline_ac4d5c9d1a34ce66b39477d746ecfcef9}\label{classsentinel_1_1AdvancedLLMPipeline_ac4d5c9d1a34ce66b39477d746ecfcef9}} 
+\index{sentinel.AdvancedLLMPipeline@{sentinel.AdvancedLLMPipeline}!parallel\_process@{parallel\_process}}
+\index{parallel\_process@{parallel\_process}!sentinel.AdvancedLLMPipeline@{sentinel.AdvancedLLMPipeline}}
+\doxysubsubsection{\texorpdfstring{parallel\_process()}{parallel\_process()}}
+{\footnotesize\ttfamily  List\mbox{[}str\mbox{]} sentinel.\+Advanced\+LLMPipeline.\+parallel\+\_\+process (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{List\mbox{[}Dict\mbox{[}str, Any\mbox{]}\mbox{]}}]{tasks }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Process multiple tasks in parallel using appropriate models
+
+@param tasks List of tasks to process
+@return List[str] List of processed results
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classsentinel_1_1AdvancedLLMPipeline_aa70fd702d4e4f746557a0aee99a1f1e7}\label{classsentinel_1_1AdvancedLLMPipeline_aa70fd702d4e4f746557a0aee99a1f1e7}} 
+\index{sentinel.AdvancedLLMPipeline@{sentinel.AdvancedLLMPipeline}!process\_github\_files@{process\_github\_files}}
+\index{process\_github\_files@{process\_github\_files}!sentinel.AdvancedLLMPipeline@{sentinel.AdvancedLLMPipeline}}
+\doxysubsubsection{\texorpdfstring{process\_github\_files()}{process\_github\_files()}}
+{\footnotesize\ttfamily  Dict\mbox{[}str, str\mbox{]} sentinel.\+Advanced\+LLMPipeline.\+process\+\_\+github\+\_\+files (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{Dict\mbox{[}str, str\mbox{]}}]{files }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Process multiple GitHub files with advanced LLM pipeline
+
+@param files Dictionary mapping file paths to their contents
+@return Dict[str, str] Dictionary mapping file paths to their processed results
+\end{DoxyVerb}
+ \mbox{\Hypertarget{classsentinel_1_1AdvancedLLMPipeline_aa3c17fdac7f5bc4fc3d6a9d22a45be99}\label{classsentinel_1_1AdvancedLLMPipeline_aa3c17fdac7f5bc4fc3d6a9d22a45be99}} 
+\index{sentinel.AdvancedLLMPipeline@{sentinel.AdvancedLLMPipeline}!route\_task@{route\_task}}
+\index{route\_task@{route\_task}!sentinel.AdvancedLLMPipeline@{sentinel.AdvancedLLMPipeline}}
+\doxysubsubsection{\texorpdfstring{route\_task()}{route\_task()}}
+{\footnotesize\ttfamily  str sentinel.\+Advanced\+LLMPipeline.\+route\+\_\+task (\begin{DoxyParamCaption}\item[{}]{self,  }\item[{str}]{input\+\_\+content }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Route input content to appropriate processing model
+
+@param input_content The content to be processed
+@return str The name of the model to use for processing
+\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sentinel.\+py\end{DoxyCompactItemize}
